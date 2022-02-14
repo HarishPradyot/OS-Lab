@@ -31,7 +31,7 @@ int main(int argc,char *argv[])
     {
         if(readFD[i]>-1)
         {
-            bytesRead=read(readFD[1],readStream,sizeof(char));
+            bytesRead=read(readFD[i],readStream,sizeof(char));
             if(bytesRead>0)
                 cout<<"Contents of "<<files[i]<<" is "<<readStream<<endl;
         }
@@ -56,7 +56,7 @@ int main(int argc,char *argv[])
     {
         cout<<"_____________________________________________"<<endl;
         // Write to respective file based on choice
-        cout<<"\nPress and the enter the following keys for the given activity: ";
+        cout<<"\nPress and the enter the following keys for the given activity: \n";
         for(int i=0;i<3;i++)
             if(writeFD[i]>-1)
                 cout<<"  "<<i+1<<" to change contents of file "<<files[i].substr(2)<<endl;
@@ -85,8 +85,8 @@ int main(int argc,char *argv[])
             {
                 if(writeFD[i]>-1)
                 {
-                    lseek(writeFD[1],0,SEEK_SET);
-                    write(writeFD[1],writeStream,sizeof(char));
+                    lseek(writeFD[i],0,SEEK_SET);
+                    write(writeFD[i],writeStream,sizeof(char));
                 }
                 else
                     cout<<"Cannot access file. Select correct option";
