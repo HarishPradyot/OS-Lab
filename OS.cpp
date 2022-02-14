@@ -10,7 +10,7 @@ int main(int argc,char *argv[])
 {
     
     cout<<"OS Demo 1"<<endl;
-    cout<<"_____________________________________________"<<endl;
+    cout<<"_____________________________________________\n"<<endl;
 
     
     int readFD[3];
@@ -54,7 +54,7 @@ int main(int argc,char *argv[])
     bool isRunning=true;
     while(isRunning&&fileWriteAccess)
     {
-        cout<<"_____________________________________________"<<endl;
+        cout<<"\n____________________________________________"<<endl;
         // Write to respective file based on choice
         cout<<"\nPress and the enter the following keys for the given activity: \n";
         for(int i=0;i<3;i++)
@@ -68,7 +68,7 @@ int main(int argc,char *argv[])
         cin.ignore();  
         if(option!=4)
         {
-            cout<<"Enter the value to replace contents of the file: ";
+            cout<<"Enter the value to replace contents of the file "<<files[option-1].substr(2)<<" : "<<endl;
             cin >> writeStream;
         }
         
@@ -76,6 +76,7 @@ int main(int argc,char *argv[])
         // Changing the files based on the write permissions and selection from the above options
         if(option==4)
         {
+            cout<<"Exiting..."<<endl;
             isRunning=false;
             continue;
         }
