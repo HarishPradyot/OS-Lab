@@ -69,7 +69,7 @@ int main(int argc,char *argv[])
         if(option!=4)
         {
             cout<<"Enter the value to replace contents of the file "<<files[option-1].substr(2)<<" : "<<endl;
-            cin >> writeStream;
+            cin>>writeStream;
         }
         
         
