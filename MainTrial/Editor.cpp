@@ -114,10 +114,10 @@ int main(int argc,char *argv[])
 	{
 		tableSize[1]=files.size();
 		fputs(&(to_string(files.size())+"\n")[0], config);
-		if(writeFiles)
-			for(vector<string>::iterator it=files.begin(); it!=files.end(); it++)
-				fputs(&((*it)+"\n")[0], config);
 	}
+	if(writeFiles)
+		for(vector<string>::iterator it=files.begin(); it!=files.end(); it++)
+			fputs(&((*it)+"\n")[0], config);
 	fclose(config);
 
 	vector<vector<int>> table;
