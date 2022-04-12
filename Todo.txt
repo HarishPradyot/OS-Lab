@@ -1,0 +1,4 @@
+* Setup/Modify database on user creation
+* Map uid to username in Editor.cpp 
+* Permissions for all files
+* Display correct info based on gid and uid

@@ -26,6 +26,8 @@ user getLastEntry(FILE* fp)
 	char c;
 	while(true)
 	{
+		if(ftell(fp)==0)
+			break;
 		c=fgetc(fp);
 		if(c=='\n')
 			break;
