@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <grp.h>
+#include <unistd.h>
 using namespace std;
 
 /*
@@ -226,39 +227,44 @@ vector<vector<string>> createUI(vector<vector<string>> data, bool total)
 	return data;
 }
 
-vector<vector<string>> retrieve_marks_data(){
+vector<vector<string>> retrieve_marks_data()
+{
 	ifstream fp("data.db");
-    string line;
-    vector<vector<string>> data;
-    while (getline(fp, line)){
-        stringstream ss(line);
-        string word;        
-        vector<string> temp;
-        while(ss>>word){
-            temp.push_back(word);
-        }
-        data.push_back(temp);
-    }
-    fp.close();
-    return data;
+	string line;
+	vector<vector<string>> data;
+	while (getline(fp, line))
+	{
+		stringstream ss(line);
+		string word;
+		vector<string> temp;
+		while (ss >> word)
+		{
+			temp.push_back(word);
+		}
+		data.push_back(temp);
+	}
+	fp.close();
+	return data;
 }
-
 
 gid_t getGroupIdByName(const char *name)
 {
-    struct group *grp = getgrnam(name); /* don't free, see getgrnam() for details */
-    if(grp == NULL) {
-        throw runtime_error(string("Failed to get groupId from groupname : ") + name);
-    } 
-    return grp->gr_gid;
+	struct group *grp = getgrnam(name); /* don't free, see getgrnam() for details */
+	if (grp == NULL)
+	{
+		throw runtime_error(string("Failed to get groupId from groupname : ") + name);
+	}
+	return grp->gr_gid;
 }
 
-
-void write_back(vector<vector<string>> final_data){
+void write_back(vector<vector<string>> final_data)
+{
 	ofstream write_fp;
 	write_fp.open("data.db");
-	for(int i=0; i<final_data.size(); i++){
-		for(int j=0; j<final_data[i].size(); j++){
+	for (int i = 0; i < final_data.size(); i++)
+	{
+		for (int j = 0; j < final_data[i].size(); j++)
+		{
 			write_fp << final_data[i][j] << " ";
 		}
 		write_fp << "\n";
@@ -268,10 +274,16 @@ void write_back(vector<vector<string>> final_data){
 
 int main(int argc, char **argv)
 {
-	char username [100];
-	cout << "Enter your username :" ;
+	char username[100];
+	cout << "Enter your username :";
 	cin >> username;
 	int gid = getGroupIdByName(username);
+	/* can use these for the same
+	 * gid_t gid = getgid();
+	 * gid_t egid = getegid();
+	 * uid_t uid = getuid();
+	 * uid_t euid = geteuid();
+	 */
 	vector<vector<string>> initial_data = retrieve_marks_data();
 	// For student set the second parameter to true (for total)
 	vector<vector<string>> final_data = createUI(initial_data, true);
