@@ -90,6 +90,6 @@ int setup_database(string user_type)
 }
 int main()
 {
-	setup_database("students");
-	setup_database("faculty");
+	setup_database("S");
+	setup_database("F");
 }

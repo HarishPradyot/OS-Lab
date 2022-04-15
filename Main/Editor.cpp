@@ -227,7 +227,7 @@ vector<vector<string>> createUI(vector<vector<string>> data, bool total)
 	return data;
 }
 
-vector<vector<string>> retrieve_marks_data()
+vector<vector<string>> retrieve_marks_data(int utype, uid_t uid)
 {
 	ifstream fp("data.db");
 	string line;
@@ -244,7 +244,37 @@ vector<vector<string>> retrieve_marks_data()
 		data.push_back(temp);
 	}
 	fp.close();
-	return data;
+	int rows = data.size();
+	int cols = data[0].size();
+	vector<vector<string>> extracted_data;
+	if(utype == 1){
+		for(int i=0;i<rows;i++){
+			if(!i) extracted_data.push_back(data[i]);
+			else{
+				if(stoi(data[i][0]) == (int)uid){
+					extracted_data.push_back(data[i]);
+					break;
+				}
+			}
+		}
+	}
+	if(utype == 2){
+		int f_col = 0;
+		for(int i=0;i<cols;i++){
+			if(stoi(data[0][i]) == (int)uid)){
+				f_col = i;
+				extracted_data.push_back(data[0]);
+				break;
+			}
+		}
+		for(int i=1;i<rows;i++){
+			extracted_data.push_back({data[i][0], data[i][f_col]});
+			
+		}
+	}
+	else return data;
+	
+	return extracted_data;
 }
 
 gid_t getGroupIdByName(const char *name)
@@ -257,15 +287,43 @@ gid_t getGroupIdByName(const char *name)
 	return grp->gr_gid;
 }
 
-void write_back(vector<vector<string>> final_data)
+void write_back(vector<vector<string>> final_data, int utype, uid_t uid)
 {
+	vector<vector<string>> database = retrieve_marks_data(-1, -1); 
+	
+	if(utype==2){  // faculty changes could have been made
+		int col = -1;
+		for(int i=0; i<database[0].size(); i++){
+			if(stoi(database[0][i])==(int)uid){
+				col = i;
+				break;
+			}
+		}
+
+		for(int i=1; i<database.size(); i++){
+			database[i][col] = final_data[i][1];
+		}
+	}
+	elseif(utype==1){
+		int row = -1;
+		for(int i=0; i<database.size(); i++){
+			if(stoi(database[i][0])==(int)uid){
+				row = i;
+			}
+		}
+
+		for(int i=1; i<database[0].size(); i++){
+			database[row][i] = final_data[1][i];
+		} 
+	}
+
 	ofstream write_fp;
 	write_fp.open("data.db");
-	for (int i = 0; i < final_data.size(); i++)
+	for (int i = 0; i < database.size(); i++)
 	{
-		for (int j = 0; j < final_data[i].size(); j++)
+		for (int j = 0; j < database[i].size(); j++)
 		{
-			write_fp << final_data[i][j] << " ";
+			write_fp << database[i][j] << " ";
 		}
 		write_fp << "\n";
 	}
@@ -277,17 +335,27 @@ int main(int argc, char **argv)
 	char username[100];
 	cout << "Enter your username :";
 	cin >> username;
-	int gid = getGroupIdByName(username);
-	/* can use these for the same
-	 * gid_t gid = getgid();
-	 * gid_t egid = getegid();
-	 * uid_t uid = getuid();
-	 * uid_t euid = geteuid();
-	 */
-	vector<vector<string>> initial_data = retrieve_marks_data();
+	// int gid = getGroupIdByName(username);
+	// can use these for the same
+	gid_t gid = getgid();
+	gid_t egid = getegid();
+	uid_t uid = getuid();
+	uid_t euid = geteuid();
+	char *grpname = getgrgid(gid);
+	int utype = -1;
+	if(strlen(grpname) > 0){
+		if(grpname[0] == 'S')  utype = 1;
+		else if(grpname[0] == 'F') utype =2;
+		else utype = 3;
+	}  
+	else {
+		printf("No Associated Group Found");	
+		exit(1);
+	}
+	vector<vector<string>> initial_data = retrieve_marks_data(utype, uid);
 	// For student set the second parameter to true (for total)
 	vector<vector<string>> final_data = createUI(initial_data, true);
-	write_back(final_data);
+	write_back(final_data, utype, uid);
 	return 0;
 }
 
