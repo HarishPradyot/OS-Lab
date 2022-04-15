@@ -247,6 +247,8 @@ vector<vector<string>> retrieve_marks_data(int utype, uid_t uid)
 	fp.close();
 	int rows = data.size();
 	int cols = data[0].size();
+	// modify the first column data
+	// modify the first row 
 	vector<vector<string>> extracted_data;
 	if(utype == 1){
 		for(int i=0;i<rows;i++){
@@ -261,16 +263,14 @@ vector<vector<string>> retrieve_marks_data(int utype, uid_t uid)
 	}
 	if(utype == 2){
 		int f_col = 0;
-		for(int i=0;i<cols;i++){
+		for(int i=1;i<cols;i++){
 			if(stoi(data[0][i]) == (int)uid){
 				f_col = i;
-				extracted_data.push_back(data[0]);
 				break;
 			}
 		}
-		for(int i=1;i<rows;i++){
+		for(int i=0;i<rows;i++){
 			extracted_data.push_back({data[i][0], data[i][f_col]});
-			
 		}
 	}
 	else return data;
@@ -307,7 +307,7 @@ void write_back(vector<vector<string>> final_data, int utype, uid_t uid)
 	}
 	else if(utype==1){
 		int row = -1;
-		for(int i=0; i<database.size(); i++){
+		for(int i=1; i<database.size(); i++){
 			if(stoi(database[i][0])==(int)uid){
 				row = i;
 			}
@@ -339,9 +339,7 @@ int main(int argc, char **argv)
 	// int gid = getGroupIdByName(username);
 	// can use these for the same
 	gid_t gid = getgid();
-	gid_t egid = getegid();
 	uid_t uid = getuid();
-	uid_t euid = geteuid();
 	char *grpname = getgrgid(gid)->gr_name;
 	int utype = -1;
 	if(strlen(grpname) > 0){
