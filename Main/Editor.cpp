@@ -1,3 +1,4 @@
+#include <bits/stdc++.h>
 #include <ncurses.h>
 #include <fstream>
 #include <iostream>
@@ -228,6 +229,40 @@ vector<vector<string>> createUI(vector<vector<string>> data, bool total)
 	return data;
 }
 
+map<int, string> get_uid_names(string filename){
+    map<int, string> names;
+    ifstream fp(filename);
+    string line;
+    while(getline(fp, line)){
+        stringstream ss(line);
+		string word;
+        vector<string> temp;
+		while (ss >> word){
+			temp.push_back(word);
+		}
+        names[stoi(temp[0])] = temp[1];
+        temp.clear();
+    }
+    return names;
+}
+
+map<string, string> get_name_uid(string filename){
+	map<string, string> names;
+    ifstream fp(filename);
+    string line;
+    while(getline(fp, line)){
+        stringstream ss(line);
+		string word;
+        vector<string> temp;
+		while (ss >> word){
+			temp.push_back(word);
+		}
+		names[temp[1]] = temp[0];
+        temp.clear();
+    }
+    return names;
+}
+
 vector<vector<string>> retrieve_marks_data(int utype, uid_t uid)
 {
 	ifstream fp("data.db");
@@ -247,10 +282,18 @@ vector<vector<string>> retrieve_marks_data(int utype, uid_t uid)
 	fp.close();
 	int rows = data.size();
 	int cols = data[0].size();
-	// modify the first column data
-	// modify the first row 
+	map<int, string> stud_names = get_uid_names("S.db");
+	map<int, string> facul_names = get_uid_names("F.db");
+	// // modify the first column data
+	// for(int i=1; i<cols; i++){
+	// 	data[0][i] = stud_names[stoi(data[0][i])];
+	// }
+	// // modify the first row 
+	// for(int i=1; i<rows; i++){
+	// 	data[i][0] = stud_names[stoi(data[i][0])];
+	// }
 	vector<vector<string>> extracted_data;
-	if(utype == 1){
+	if(utype == 1){ //students
 		for(int i=0;i<rows;i++){
 			if(!i) extracted_data.push_back(data[i]);
 			else{
@@ -261,7 +304,7 @@ vector<vector<string>> retrieve_marks_data(int utype, uid_t uid)
 			}
 		}
 	}
-	if(utype == 2){
+	if(utype == 2){ //faculty
 		int f_col = 0;
 		for(int i=1;i<cols;i++){
 			if(stoi(data[0][i]) == (int)uid){
@@ -272,9 +315,19 @@ vector<vector<string>> retrieve_marks_data(int utype, uid_t uid)
 		for(int i=0;i<rows;i++){
 			extracted_data.push_back({data[i][0], data[i][f_col]});
 		}
+
 	}
-	else return data;
-	
+	else{
+		extracted_data = data;
+	}
+
+	for(int i=1; i<extracted_data.size(); i++){
+		extracted_data[i][0] = stud_names[stoi(extracted_data[i][0])];
+	}
+	for(int i=1; i<extracted_data[0].size(); i++){
+		extracted_data[0][i] = facul_names[stoi(extracted_data[0][i])];
+	}
+
 	return extracted_data;
 }
 
@@ -290,6 +343,14 @@ gid_t getGroupIdByName(const char *name)
 
 void write_back(vector<vector<string>> final_data, int utype, uid_t uid)
 {
+	map<string, string> stud_uid = get_name_uid("S.db");
+	map<string, string> facul_uid = get_name_uid("F.db");
+	for(int i=1; i<final_data.size(); i++){
+		final_data[i][0] = stud_uid[final_data[i][0]];
+	}
+	for(int i=1; i<final_data[0].size(); i++){
+		final_data[0][i] = stud_uid[final_data[0][i]];
+	}
 	vector<vector<string>> database = retrieve_marks_data(-1, -1); 
 	
 	if(utype==2){  // faculty changes could have been made
