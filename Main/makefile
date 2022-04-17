@@ -12,6 +12,16 @@ setupuser:
 setupuser_run:
 	./setupusers.o
 
+refreshdata:
+	g++ -o refreshdata.o -O0 refreshdata.cpp
+
+resetdata_run:
+	./refreshdata.o 0
+
+refreshdata_run:
+	./refreshdata.o 1
+
 clean: 
 	rm -rf editor.o
 	rm -rf setupusers.o
+	rm -rf refreshdata.o
