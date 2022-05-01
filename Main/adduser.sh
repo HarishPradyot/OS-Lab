@@ -1,13 +1,17 @@
-#!/bin/sh
-# Get the username of User
+#! /bin/sh
+# username
 echo Enter the Username of the user :
 read username
 
+# usergroup
 echo Type of User [F/S] :
 read usertype
 
-# useradd -G$usertype $username
-# passwd $username
+#homedirectory
+homedirectory = /home/OS-Demo
+
+pw useradd -n$username -c$username -d$homedirectory -g$usertype
+passwd $username
 
 make setupuser
 make setupuser_run
