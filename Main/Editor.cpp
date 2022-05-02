@@ -38,15 +38,18 @@ vector<vector<string>> createUI(vector<vector<string>> data, bool total)
 	// Table Dimensions.
 	int tHeight, tWidth, startX, startY;
 	int tRows = data.size(), tColumns = data[0].size() + total;
-
+	int row, col;
+	getmaxyx(stdscr, row, col);
 	// TODO: set the width and height dynamically
-	tHeight = 3 * tRows;
-	tWidth = 15 * tColumns;
+	row -= 2;
+	col -= 2;
+	tHeight = min(3, (row/tRows)) * tRows;
+	tWidth = min(15,(col/tColumns)) * tColumns;
 
 	refresh();
 
 	// Creating the main window
-	WINDOW *table = create_newwin(tHeight + 2, tWidth + 2, 5, 5);
+	WINDOW *table = create_newwin(tHeight + 2, tWidth + 2, 0, 0);
 
 	if (!table)
 	{
@@ -60,8 +63,8 @@ vector<vector<string>> createUI(vector<vector<string>> data, bool total)
 	int mvH = tHeight / tRows, mvW = tWidth / tColumns;
 
 	int rTotal = 0;
-	startY = 6;
-	startX = 6;
+	startY = 1;
+	startX = 1;
 
 	for (int i = 0; i < tRows; i++)
 	{
@@ -95,11 +98,11 @@ vector<vector<string>> createUI(vector<vector<string>> data, bool total)
 			wrefresh(dataTable[i][j]);
 		}
 		startY += mvH;
-		startX = 6;
+		startX = 1;
 	}
 
-	startY = 6 + mvH;
-	startX = 6 + mvW;
+	startY = mvH;
+	startX = mvW;
 	int curRow = 1, curColumn = 1;
 	box(dataTable[curRow][curColumn], 124, 45);
 	wrefresh(dataTable[curRow][curColumn]);
@@ -113,7 +116,7 @@ vector<vector<string>> createUI(vector<vector<string>> data, bool total)
 		{
 			startX -= mvW;
 			curColumn--;
-			if (startX < 6 + mvW)
+			if (startX <mvW)
 			{
 				startX += mvW;
 				curColumn++;
@@ -124,7 +127,7 @@ vector<vector<string>> createUI(vector<vector<string>> data, bool total)
 		{
 			startX += mvW;
 			curColumn++;
-			if (startX > (tColumns - total) * mvW)
+			if (startX >= (tColumns - total) * mvW)
 			{
 				startX -= mvW;
 				curColumn--;
@@ -135,7 +138,7 @@ vector<vector<string>> createUI(vector<vector<string>> data, bool total)
 		{
 			startY -= mvH;
 			curRow--;
-			if (startY < 6 + mvH)
+			if (startY < mvH)
 			{
 				startY += mvH;
 				curRow++;
@@ -146,7 +149,7 @@ vector<vector<string>> createUI(vector<vector<string>> data, bool total)
 		{
 			startY += mvH;
 			curRow++;
-			if (startY > mvH * (tRows + 1))
+			if (startY >= mvH * (tRows))
 			{
 				startY -= mvH;
 				curRow--;
@@ -156,8 +159,8 @@ vector<vector<string>> createUI(vector<vector<string>> data, bool total)
 		case (int)'\n':
 		{
 			// TODO: If student then don't allow this.
-
-			move(startY + mvH / 2, startX + mvW / 2);
+			if(total) break;
+			move(startY + 1 +  mvH / 2, startX + 1 + mvW / 2);
 
 			mvwprintw(dataTable[curRow][curColumn], mvH / 2,
 					  mvW / 2, " ");
@@ -181,10 +184,10 @@ vector<vector<string>> createUI(vector<vector<string>> data, bool total)
 		}
 		}
 		// Re-draw the window
-		table = create_newwin(tHeight + 2, tWidth + 2, 5, 5);
+		table = create_newwin(tHeight + 2, tWidth + 2, 0, 0);
 
-		int tempStartY = 6;
-		int tempStartX = 6;
+		int tempStartY = 1;
+		int tempStartX = 1;
 		int rSum = 0;
 		for (int i = 0; i < tRows; i++)
 		{
@@ -218,11 +221,11 @@ vector<vector<string>> createUI(vector<vector<string>> data, bool total)
 				wrefresh(dataTable[i][j]);
 			}
 			tempStartY += mvH;
-			tempStartX = 6;
+			tempStartX = 1;
 		}
 		box(dataTable[curRow][curColumn], 45, 45);
 		wrefresh(dataTable[curRow][curColumn]);
-		move(startY + mvH / 2, startX + mvW / 2);
+		move(startY +3*mvH/4, startX +1 + mvW / 2);
 		refresh();
 	}
 	endwin();
@@ -284,14 +287,6 @@ vector<vector<string>> retrieve_marks_data(int utype, uid_t uid)
 	int cols = data[0].size();
 	map<int, string> stud_names = get_uid_names("S.db");
 	map<int, string> facul_names = get_uid_names("F.db");
-	// // modify the first column data
-	// for(int i=1; i<cols; i++){
-	// 	data[0][i] = stud_names[stoi(data[0][i])];
-	// }
-	// // modify the first row 
-	// for(int i=1; i<rows; i++){
-	// 	data[i][0] = stud_names[stoi(data[i][0])];
-	// }
 	vector<vector<string>> extracted_data;
 	if(utype == 1){ //students
 		for(int i=0;i<rows;i++){
@@ -304,7 +299,7 @@ vector<vector<string>> retrieve_marks_data(int utype, uid_t uid)
 			}
 		}
 	}
-	if(utype == 2){ //faculty
+	else if(utype == 2){ //faculty
 		int f_col = 0;
 		for(int i=1;i<cols;i++){
 			if(stoi(data[0][i]) == (int)uid){
@@ -315,19 +310,18 @@ vector<vector<string>> retrieve_marks_data(int utype, uid_t uid)
 		for(int i=0;i<rows;i++){
 			extracted_data.push_back({data[i][0], data[i][f_col]});
 		}
-
 	}
 	else{
 		extracted_data = data;
+		//cout << extracted_data[0][1] << '\n';
+		return extracted_data;
 	}
-
 	for(int i=1; i<extracted_data.size(); i++){
 		extracted_data[i][0] = stud_names[stoi(extracted_data[i][0])];
 	}
 	for(int i=1; i<extracted_data[0].size(); i++){
 		extracted_data[0][i] = facul_names[stoi(extracted_data[0][i])];
 	}
-
 	return extracted_data;
 }
 
@@ -349,19 +343,20 @@ void write_back(vector<vector<string>> final_data, int utype, uid_t uid)
 		final_data[i][0] = stud_uid[final_data[i][0]];
 	}
 	for(int i=1; i<final_data[0].size(); i++){
-		final_data[0][i] = stud_uid[final_data[0][i]];
+		final_data[0][i] = facul_uid[final_data[0][i]];
 	}
-	vector<vector<string>> database = retrieve_marks_data(-1, -1); 
-	
+	vector<vector<string>> database = retrieve_marks_data(-1, -1);  	
+
 	if(utype==2){  // faculty changes could have been made
-		int col = -1;
-		for(int i=0; i<database[0].size(); i++){
-			if(stoi(database[0][i])==(int)uid){
-				col = i;
-				break;
+		int col = 1;
+		for(int i=1; i<database[0].size(); i++){
+			if(i){
+				if(stoi(database[0][i])==(int)uid){
+					col = i;
+					break;
+				}
 			}
 		}
-
 		for(int i=1; i<database.size(); i++){
 			database[i][col] = final_data[i][1];
 		}
@@ -371,21 +366,27 @@ void write_back(vector<vector<string>> final_data, int utype, uid_t uid)
 		for(int i=1; i<database.size(); i++){
 			if(stoi(database[i][0])==(int)uid){
 				row = i;
+				break;
 			}
 		}
 
 		for(int i=1; i<database[0].size(); i++){
 			database[row][i] = final_data[1][i];
 		} 
+	} else {
+		for(int i=1;i<final_data.size();i++)
+			for(int j=1;j<final_data[0].size();j++)
+				database[i][j] = final_data[i][j];
 	}
-
+	
 	ofstream write_fp;
 	write_fp.open("data.db");
 	for (int i = 0; i < database.size(); i++)
 	{
 		for (int j = 0; j < database[i].size(); j++)
 		{
-			write_fp << database[i][j] << " ";
+			 write_fp << database[i][j];
+			if(j < database[i].size() - 1) write_fp << " ";
 		}
 		write_fp << "\n";
 	}
@@ -394,27 +395,23 @@ void write_back(vector<vector<string>> final_data, int utype, uid_t uid)
 
 int main(int argc, char **argv)
 {
-	char username[100];
-	cout << "Enter your username :";
-	cin >> username;
 	// int gid = getGroupIdByName(username);
 	// can use these for the same
 	gid_t gid = getgid();
 	uid_t uid = getuid();
 	char *grpname = getgrgid(gid)->gr_name;
+	struct group *gr;
 	int utype = -1;
-	if(strlen(grpname) > 0){
-		if(grpname[0] == 'S')  utype = 1;
-		else if(grpname[0] == 'F') utype =2;
-		else utype = 3;
-	}  
-	else {
+	if(grpname[0] == 's') utype = 1;
+	if(grpname[0] == 'f') utype = 2;
+	if(grpname[0] == 'A') utype = 3;
+	if(utype == -1) {
 		printf("No Associated Group Found");	
 		exit(1);
 	}
+	//cout << utype << ' ' << uid << '\n';
 	vector<vector<string>> initial_data = retrieve_marks_data(utype, uid);
-	// For student set the second parameter to true (for total)
-	vector<vector<string>> final_data = createUI(initial_data, true);
+	vector<vector<string>> final_data = createUI(initial_data, utype==1);
 	write_back(final_data, utype, uid);
 	return 0;
 }
