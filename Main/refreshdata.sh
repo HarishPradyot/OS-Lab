@@ -6,7 +6,7 @@ read operation
 
 if [ $operation -eq 0 ]
 then
-	make resethdata_run
+	make resetdata_run
 elif [ $operation -eq 1 ]
 then
 	make refreshdata_run
