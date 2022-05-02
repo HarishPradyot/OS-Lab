@@ -19,10 +19,10 @@ bool comp(user a, user b)
 }
 user getLastEntry(FILE* fp)
 {
-	if(fgetc(fp)==EOF)
+	if(ftell(fp)==0)
 		return make_pair(0, "");
+		
 	fseek(fp, -2, SEEK_END);
-	
 	char c;
 	while(true)
 	{
@@ -74,7 +74,8 @@ int setup_database(string user_type)
 			users.push_back(temp);
 		}
 	}
-
+	if(users.size()==0)
+		return 1;
 	//Sort users based on uid_t
 	sort(users.begin(), users.end(), &comp);
 
@@ -82,7 +83,11 @@ int setup_database(string user_type)
 	string fname="./"+user_type+".db";
 	FILE* file=fopen(&fname[0], "a+");
 	user lastEntry=getLastEntry(file);
+	cout<<lastEntry.first<<"   "<<lastEntry.second<<endl;
 	vector<user>::iterator start=upper_bound(users.begin(), users.end(), lastEntry);
+	//cout<<users.size()<<endl;
+	//for(int i=0;i<users.size();i++)
+	//	cout<<users[i].first<<"  "<<users[i].second<<endl;
 	for(;start!=users.end();start++)
 		fputs(&(to_string(start->first)+" "+start->second+"\n")[0], file);
 	fclose(file);
@@ -92,4 +97,5 @@ int main()
 {
 	setup_database("S");
 	setup_database("F");
+	return 0;
 }

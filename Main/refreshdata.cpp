@@ -245,6 +245,7 @@ int refresh_database(string file_name, bool reset=true)
 		}
 	}	
 	fclose(file);
+	return 0;
 }
 int main(int argc, char* argv[])
 {
@@ -258,4 +259,5 @@ int main(int argc, char* argv[])
 		else if(argv[1][0] == '1')
 			refresh_database("data", false);
 	}
+	return 0;
 }

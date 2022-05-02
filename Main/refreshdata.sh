@@ -1,12 +1,13 @@
+#! /bin/sh
 make refreshdata
 
-echo How do you want to modify the database:
+echo How do you want to modify the database [reset-0 or refresh-1]:
 read operation
 
-if [$operation == "reset"]
+if $operation -eq 0;
 then
 	make resethdata_run
-elif [$operation == "refresh"]
+elif $operation -eq 1;
 then
 	make refreshdata_run
 fi
