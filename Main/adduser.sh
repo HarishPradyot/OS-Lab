@@ -8,9 +8,9 @@ echo Type of User [F/S] :
 read usertype
 
 #homedirectory
-homedirectory = /home/OS-Demo
+homedirectory=/home/harry/OS-Lab
 
-pw useradd -n$username -c$username -d$homedirectory -g$usertype
+pw useradd -n$username -c$username -d$homedirectory -G$usertype
 passwd $username
 
 make setupuser
